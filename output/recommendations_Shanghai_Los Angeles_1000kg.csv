@@ -1,0 +1,4 @@
+origin,destination,mode,distance_km,rate_per_km,transit_days,co2_per_km,total_cost
+Shanghai,Los Angeles,sea,10360,0.02,18,10,207200.00000000003
+Shanghai,Los Angeles,rail,10360,0.05,10,20,518000.0
+Shanghai,Los Angeles,air,10360,0.12,2,500,1243200.0
