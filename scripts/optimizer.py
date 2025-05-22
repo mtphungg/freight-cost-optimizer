@@ -45,7 +45,6 @@ def main():
     print("\n📦 Available Shipping Options:")
     print(tabulate(results, headers="keys", floatfmt=".2f"))
 
-    # Summary insights
     cheapest = min(results, key=lambda x: x['total_cost'])
     fastest = min(results, key=lambda x: float(x['transit_days']))
     greenest = min(results, key=lambda x: float(x['co2_per_km']))
@@ -55,7 +54,6 @@ def main():
     print(f"  🚀 Fastest: {fastest['mode']} in {fastest['transit_days']} days")
     print(f"  🌱 Greenest: {greenest['mode']} with {greenest['co2_per_km']} kg CO₂/km")
 
-    # Save to CSV
     os.makedirs('output', exist_ok=True)
     output_file = f"output/recommendations_{origin}_{destination}_{int(weight_kg)}kg.csv"
     with open(output_file, 'w', newline='') as csvfile:
@@ -65,7 +63,6 @@ def main():
 
     print(f"\n✅ Results saved to: {output_file}")
 
-    # Generate bar charts
     modes = [row['mode'] for row in results]
     costs = [row['total_cost'] for row in results]
     times = [float(row['transit_days']) for row in results]
