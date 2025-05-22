@@ -19,12 +19,38 @@ def find_best_option(data, origin, destination, weight_kg):
     return sorted(options, key=lambda x: x['total_cost'])
 
 def parse_weight(weight_str):
-    weight_str = weight_str.strip().lower()
-    if weight_str.endswith('lbs') or weight_str.endswith('lb'):
-        weight_val = float(weight_str.replace('lbs','').replace('lb','').strip())
-        return weight_val * 0.453592  # lbs to kg
-    else:
-        return float(weight_str)  # assume kg
+    try:
+        weight_str = weight_str.strip().lower()
+        if weight_str.endswith('lbs') or weight_str.endswith('lb'):
+            weight_val = float(weight_str.replace('lbs','').replace('lb','').strip())
+            return weight_val * 0.453592  # lbs to kg
+        else:
+            return float(weight_str)  # assume kg
+    except ValueError:
+        print("❌ Error: Invalid weight format. Use a number like 1000 or '2204 lbs'.")
+        sys.exit(1)
+
+def generate_charts(results):
+    modes = [row['mode'] for row in results]
+    costs = [row['total_cost'] for row in results]
+    times = [float(row['transit_days']) for row in results]
+    emissions = [float(row['co2_per_km']) for row in results]
+
+    def plot_bar(values, ylabel, title, filename):
+        plt.figure()
+        plt.bar(modes, values, color='skyblue')
+        plt.xlabel('Transport Mode')
+        plt.ylabel(ylabel)
+        plt.title(title)
+        plt.tight_layout()
+        plt.savefig(f'output/{filename}')
+        plt.close()
+
+    plot_bar(costs, 'Total Cost (USD)', 'Total Cost by Mode', 'chart_cost.png')
+    plot_bar(times, 'Transit Time (Days)', 'Transit Time by Mode', 'chart_time.png')
+    plot_bar(emissions, 'CO₂ Emissions (kg/km)', 'CO₂ Emissions by Mode', 'chart_emissions.png')
+
+    print("📊 Charts saved to output/: chart_cost.png, chart_time.png, chart_emissions.png")
 
 def main():
     if len(sys.argv) != 4:
@@ -35,7 +61,15 @@ def main():
     destination = sys.argv[2]
     weight_kg = parse_weight(sys.argv[3])
 
-    data = load_data('data/freight_rates.csv')
+    try:
+        data = load_data('data/freight_rates.csv')
+    except FileNotFoundError:
+        print("❌ Error: Could not find 'data/freight_rates.csv'. Make sure the file exists.")
+        return
+    except Exception as e:
+        print(f"❌ Error loading data: {e}")
+        return
+
     results = find_best_option(data, origin, destination, weight_kg)
 
     if not results:
@@ -63,26 +97,7 @@ def main():
 
     print(f"\n✅ Results saved to: {output_file}")
 
-    modes = [row['mode'] for row in results]
-    costs = [row['total_cost'] for row in results]
-    times = [float(row['transit_days']) for row in results]
-    emissions = [float(row['co2_per_km']) for row in results]
-
-    def plot_bar(values, ylabel, title, filename):
-        plt.figure()
-        plt.bar(modes, values, color='skyblue')
-        plt.xlabel('Transport Mode')
-        plt.ylabel(ylabel)
-        plt.title(title)
-        plt.tight_layout()
-        plt.savefig(f'output/{filename}')
-        plt.close()
-
-    plot_bar(costs, 'Total Cost (USD)', 'Total Cost by Mode', 'chart_cost.png')
-    plot_bar(times, 'Transit Time (Days)', 'Transit Time by Mode', 'chart_time.png')
-    plot_bar(emissions, 'CO₂ Emissions (kg/km)', 'CO₂ Emissions by Mode', 'chart_emissions.png')
-
-    print("📊 Charts saved to output/: chart_cost.png, chart_time.png, chart_emissions.png")
+    generate_charts(results)
 
 if __name__ == "__main__":
     main()
