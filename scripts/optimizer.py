@@ -30,7 +30,7 @@ def parse_weight(weight_str):
             weight_val = float(weight_str.replace('lbs', '').replace('lb', '').strip())
             return weight_val * 0.453592
         else:
-            return float(weight_str)  # Assume kg if no unit
+            return float(weight_str)  
     except ValueError:
         print("❌ Error: Invalid weight format. Use 1000, '1000kg', or '2204 lbs'.")
         sys.exit(1)
