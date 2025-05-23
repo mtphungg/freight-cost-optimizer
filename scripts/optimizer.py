@@ -1,10 +1,12 @@
 import csv
 import sys
 import os
+import argparse
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 
 def load_data(file_path):
+    """Load freight rate data from a CSV file."""
     with open(file_path, 'r') as f:
         reader = csv.DictReader(f)
         return list(reader)
@@ -19,15 +21,18 @@ def find_best_option(data, origin, destination, weight_kg):
     return sorted(options, key=lambda x: x['total_cost'])
 
 def parse_weight(weight_str):
+    """Convert user input string to float weight in kg."""
     try:
         weight_str = weight_str.strip().lower()
-        if weight_str.endswith('lbs') or weight_str.endswith('lb'):
-            weight_val = float(weight_str.replace('lbs','').replace('lb','').strip())
-            return weight_val * 0.453592  # lbs to kg
+        if weight_str.endswith('kg'):
+            return float(weight_str.replace('kg', '').strip())
+        elif weight_str.endswith('lbs') or weight_str.endswith('lb'):
+            weight_val = float(weight_str.replace('lbs', '').replace('lb', '').strip())
+            return weight_val * 0.453592
         else:
-            return float(weight_str)  # assume kg
+            return float(weight_str)  # Assume kg if no unit
     except ValueError:
-        print("❌ Error: Invalid weight format. Use a number like 1000 or '2204 lbs'.")
+        print("❌ Error: Invalid weight format. Use 1000, '1000kg', or '2204 lbs'.")
         sys.exit(1)
 
 def generate_charts(results):
@@ -42,6 +47,7 @@ def generate_charts(results):
         plt.xlabel('Transport Mode')
         plt.ylabel(ylabel)
         plt.title(title)
+        plt.xticks(rotation=15)
         plt.tight_layout()
         plt.savefig(f'output/{filename}')
         plt.close()
@@ -53,18 +59,22 @@ def generate_charts(results):
     print("📊 Charts saved to output/: chart_cost.png, chart_time.png, chart_emissions.png")
 
 def main():
-    if len(sys.argv) != 4:
-        print("Usage: python optimizer.py <origin> <destination> <weight_kg or weight_lbs>")
-        return
+    parser = argparse.ArgumentParser(description="📦 Freight Cost Optimizer")
+    parser.add_argument('origin', help="Origin city (e.g., Shanghai)")
+    parser.add_argument('destination', help="Destination city (e.g., Los Angeles)")
+    parser.add_argument('weight', help="Shipment weight (e.g., 1000, 1000kg, or 2204 lbs)")
+    parser.add_argument('--data', default='data/freight_rates.csv', help="Path to freight_rates.csv file")
+    args = parser.parse_args()
 
-    origin = sys.argv[1]
-    destination = sys.argv[2]
-    weight_kg = parse_weight(sys.argv[3])
+    origin = args.origin
+    destination = args.destination
+    weight_kg = parse_weight(args.weight)
+    data_file = args.data
 
     try:
-        data = load_data('data/freight_rates.csv')
+        data = load_data(data_file)
     except FileNotFoundError:
-        print("❌ Error: Could not find 'data/freight_rates.csv'. Make sure the file exists.")
+        print(f"❌ Error: File not found → {data_file}")
         return
     except Exception as e:
         print(f"❌ Error loading data: {e}")
@@ -73,7 +83,7 @@ def main():
     results = find_best_option(data, origin, destination, weight_kg)
 
     if not results:
-        print("No available routes for this origin and destination.")
+        print("⚠️ No available routes for this origin and destination.")
         return
 
     print("\n📦 Available Shipping Options:")
