@@ -1,6 +1,10 @@
 origin,destination,mode,distance_km,rate_per_km,transit_days,co2_per_km
-Shanghai,Los Angeles,sea,10360,0.02,18,10
-Shanghai,Los Angeles,air,10360,0.12,2,500
-Shanghai,Los Angeles,rail,10360,0.05,10,20
-Hamburg,Singapore,sea,11230,0.018,21,9
-Hamburg,Singapore,air,11230,0.10,3,450
+Shanghai,Los Angeles,sea,10413,0.05,15,10
+Shanghai,Los Angeles,air,10413,0.25,3,500
+Shanghai,Los Angeles,rail,10413,0.07,12,30
+Hamburg,New York,sea,6190,0.06,12,12
+Hamburg,New York,air,6190,0.28,2,550
+Hamburg,New York,rail,6190,0.08,10,35
+Singapore,Sydney,sea,6300,0.05,10,11
+Singapore,Sydney,air,6300,0.26,2,520
+Singapore,Sydney,rail,6300,0.07,8,33
